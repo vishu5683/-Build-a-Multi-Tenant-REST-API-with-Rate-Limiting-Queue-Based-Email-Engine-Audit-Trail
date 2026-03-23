@@ -1,0 +1,56 @@
+openapi: 3.0.3
+info:
+  title: Velo Assessment API
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000
+paths:
+  /projects:
+    get:
+      security: [{ TenantApiKey: [] }]
+      responses:
+        "200": { description: List projects }
+    post:
+      security: [{ TenantApiKey: [] }]
+      responses:
+        "201": { description: Create project }
+  /tenant/invite:
+    post:
+      security: [{ TenantApiKey: [] }]
+      responses:
+        "201": { description: Invite user }
+  /tenant/api-keys/rotate:
+    post:
+      security: [{ TenantApiKey: [] }]
+      responses:
+        "201": { description: Rotate API key }
+  /audit:
+    get:
+      security: [{ TenantApiKey: [] }]
+      responses:
+        "200": { description: Query audit logs }
+  /audit/verify:
+    get:
+      security: [{ TenantApiKey: [] }]
+      responses:
+        "200": { description: Verify chain }
+  /internal/health:
+    get:
+      security: [{ InternalApiKey: [] }]
+      responses:
+        "200": { description: Health info }
+  /internal/metrics:
+    get:
+      security: [{ InternalApiKey: [] }]
+      responses:
+        "200": { description: Tenant billing metrics }
+components:
+  securitySchemes:
+    TenantApiKey:
+      type: apiKey
+      in: header
+      name: x-api-key
+    InternalApiKey:
+      type: apiKey
+      in: header
+      name: x-internal-api-key

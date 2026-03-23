@@ -1,0 +1,137 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  OWNER
+  MEMBER
+}
+
+enum EmailStatus {
+  PENDING
+  SENT
+  FAILED
+}
+
+model Tenant {
+  id                  String            @id @default(cuid())
+  name                String
+  createdAt           DateTime          @default(now())
+  users               User[]
+  apiKeys             ApiKey[]
+  projects            Project[]
+  auditLogs           AuditLog[]
+  emailLogs           EmailDeliveryLog[]
+  requestMetrics      RequestMetric[]
+  rateLimitBreaches   RateLimitBreach[]
+}
+
+model User {
+  id          String    @id @default(cuid())
+  tenantId    String
+  email       String
+  name        String
+  role        Role
+  createdAt   DateTime  @default(now())
+  tenant      Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  apiKeys     ApiKey[]
+
+  @@unique([tenantId, email])
+  @@index([tenantId])
+}
+
+model ApiKey {
+  id            String    @id @default(cuid())
+  tenantId       String
+  userId         String
+  keyPrefix      String
+  keyHash        String
+  isActive       Boolean   @default(true)
+  createdAt      DateTime  @default(now())
+  expiresAt      DateTime?
+  replacedByKeyId String?
+  tenant         Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, keyPrefix])
+  @@index([tenantId, isActive])
+}
+
+model Project {
+  id          String   @id @default(cuid())
+  tenantId    String
+  name        String
+  description String?
+  createdById String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+}
+
+model AuditLog {
+  id           String   @id @default(cuid())
+  tenantId     String
+  actorUserId  String?
+  apiKeyId     String?
+  action       String
+  resourceType String
+  resourceId   String
+  previousData Json?
+  newData      Json?
+  ipAddress    String?
+  timestamp    DateTime @default(now())
+  previousHash String?
+  chainHash    String
+  tenant       Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, timestamp])
+  @@index([tenantId, actorUserId])
+  @@index([tenantId, action])
+  @@index([tenantId, resourceType])
+}
+
+model EmailDeliveryLog {
+  id            String      @id @default(cuid())
+  tenantId      String
+  recipient     String
+  template      String
+  status        EmailStatus @default(PENDING)
+  attemptCount  Int         @default(0)
+  messageId     String?
+  previewUrl    String?
+  lastError     String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  tenant        Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, createdAt])
+}
+
+model RequestMetric {
+  id          String   @id @default(cuid())
+  tenantId    String
+  endpoint    String
+  statusCode  Int
+  createdAt   DateTime @default(now())
+  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, createdAt])
+  @@index([tenantId, endpoint, createdAt])
+}
+
+model RateLimitBreach {
+  id        String   @id @default(cuid())
+  tenantId  String
+  tier      String
+  createdAt DateTime @default(now())
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, createdAt])
+}

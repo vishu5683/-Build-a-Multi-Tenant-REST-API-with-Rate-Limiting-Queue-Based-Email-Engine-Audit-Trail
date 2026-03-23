@@ -1,0 +1,190 @@
+{
+  "info": {
+    "_postman_id": "c8e36f90-cc4d-4f9d-a9f0-f4308f8f8470",
+    "name": "Velozity Assessment API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Tenant - List Projects",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "x-api-key",
+            "value": "{{tenantApiKey}}"
+          }
+        ],
+        "url": "{{baseUrl}}/projects"
+      }
+    },
+    {
+      "name": "Tenant - Create Project",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "x-api-key",
+            "value": "{{tenantApiKey}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Assessment Project\",\n  \"description\": \"Created from Postman\"\n}"
+        },
+        "url": "{{baseUrl}}/projects"
+      }
+    },
+    {
+      "name": "Tenant - Invite User (Owner)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "x-api-key",
+            "value": "{{ownerApiKey}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"new.member@example.com\",\n  \"name\": \"New Member\",\n  \"role\": \"MEMBER\"\n}"
+        },
+        "url": "{{baseUrl}}/tenant/invite"
+      }
+    },
+    {
+      "name": "Tenant - Rotate API Key (Owner)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "x-api-key",
+            "value": "{{ownerApiKey}}"
+          }
+        ],
+        "url": "{{baseUrl}}/tenant/api-keys/rotate"
+      }
+    },
+    {
+      "name": "Audit - Verify Chain",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "x-api-key",
+            "value": "{{tenantApiKey}}"
+          }
+        ],
+        "url": "{{baseUrl}}/audit/verify"
+      }
+    },
+    {
+      "name": "Audit - Filtered Query with Cursor",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "x-api-key",
+            "value": "{{tenantApiKey}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/audit?action=PROJECT_CREATED&resourceType=project&limit=20&startDate=2026-01-01T00:00:00.000Z",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "audit"
+          ],
+          "query": [
+            {
+              "key": "action",
+              "value": "PROJECT_CREATED"
+            },
+            {
+              "key": "resourceType",
+              "value": "project"
+            },
+            {
+              "key": "limit",
+              "value": "20"
+            },
+            {
+              "key": "startDate",
+              "value": "2026-01-01T00:00:00.000Z"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Internal - Health",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "x-internal-api-key",
+            "value": "{{internalApiKey}}"
+          }
+        ],
+        "url": "{{baseUrl}}/internal/health"
+      }
+    },
+    {
+      "name": "Internal - Metrics",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "x-internal-api-key",
+            "value": "{{internalApiKey}}"
+          }
+        ],
+        "url": "{{baseUrl}}/internal/metrics?tenantId={{tenantId}}"
+      }
+    },
+    {
+      "name": "Rate Limit Stress (Expect 429 eventually)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "x-api-key",
+            "value": "{{tenantApiKey}}"
+          }
+        ],
+        "url": "{{baseUrl}}/projects"
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000"
+    },
+    {
+      "key": "tenantApiKey",
+      "value": ""
+    },
+    {
+      "key": "ownerApiKey",
+      "value": ""
+    },
+    {
+      "key": "internalApiKey",
+      "value": "internal_super_secret_key"
+    },
+    {
+      "key": "tenantId",
+      "value": ""
+    }
+  ]
+}
